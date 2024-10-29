@@ -15,6 +15,8 @@ class MainActivity : AppCompatActivity() {
         val quoteText = binding.textQuote;
         val nextButton = binding.nextButton;
         val prevButton = binding.prevButton;
+        val exitButton = binding.exitButton;
+        val deleteButton = binding.deleteButton;
         val inputStream: InputStream = applicationContext.assets.open("cites.txt")
 
         val lineList = mutableListOf<String>()
@@ -28,12 +30,22 @@ class MainActivity : AppCompatActivity() {
 
         quoteText.text = lineList[currentQuote];
 
-
-
+        if (currentQuote == 0) {
+            prevButton.isEnabled = false;
+        }
+        // TODO: Delete from local storage instead maybe
+        deleteButton.setOnClickListener {
+            lineList.removeAt(currentQuote);
+            quoteText.text = lineList[currentQuote];
+        }
+        exitButton.setOnClickListener {
+            this.finishAffinity();
+        }
         nextButton.setOnClickListener {
             if (currentQuote == lineList.lastIndex - 1) {
                 nextButton.isEnabled = false;
             }
+            prevButton.isEnabled = true;
             currentQuote++;
             quoteText.text = lineList[currentQuote];
         }
@@ -41,14 +53,15 @@ class MainActivity : AppCompatActivity() {
             if (currentQuote == lineList.lastIndex - 1) {
                 nextButton.isEnabled = true;
             }
+            if (currentQuote == 1) {
+                prevButton.isEnabled = false;
+            }
             if (currentQuote == 0) {
                 currentQuote = 0;
             } else {
                 currentQuote--;
                 quoteText.text = lineList[currentQuote];
             }
-
         }
-
     }
 }
