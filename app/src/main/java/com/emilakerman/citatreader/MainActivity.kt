@@ -1,5 +1,6 @@
 package com.emilakerman.citatreader
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.emilakerman.citatreader.databinding.ActivityMainBinding
@@ -17,17 +18,10 @@ class MainActivity : AppCompatActivity() {
         val prevButton = binding.prevButton;
         val exitButton = binding.exitButton;
         val deleteButton = binding.deleteButton;
-        val inputStream: InputStream = applicationContext.assets.open("cites.txt")
-
         val lineList = mutableListOf<String>()
-        inputStream.bufferedReader().use { reader ->
-            reader.forEachLine { line ->
-                lineList.add(line)
-            }
-        }
+        var currentQuote = retrieveFromSharedPreferences();
 
-        var currentQuote = 0;
-
+        segmentInputStream(lineList);
         quoteText.text = lineList[currentQuote];
 
         if (currentQuote == 0) {
@@ -40,6 +34,7 @@ class MainActivity : AppCompatActivity() {
         }
         exitButton.setOnClickListener {
             this.finishAffinity();
+            saveCurrentIndexToSharedPreferences(currentQuote);
         }
         nextButton.setOnClickListener {
             if (currentQuote == lineList.lastIndex - 1) {
@@ -61,6 +56,24 @@ class MainActivity : AppCompatActivity() {
             } else {
                 currentQuote--;
                 quoteText.text = lineList[currentQuote];
+            }
+        }
+    }
+    private fun saveCurrentIndexToSharedPreferences(currentQuote: Int) {
+        val sharedPreference = getSharedPreferences("SAVED_INDEX",Context.MODE_PRIVATE)
+        val editor = sharedPreference.edit()
+        editor.putInt("currentQuote",currentQuote)
+        editor.apply();
+    }
+    private fun retrieveFromSharedPreferences(): Int {
+        val sharedPreference = getSharedPreferences("SAVED_INDEX", Context.MODE_PRIVATE)
+        return sharedPreference.getInt("currentQuote", 0)
+    }
+    private fun segmentInputStream(lineList: MutableList<String>) {
+        val inputStream: InputStream = applicationContext.assets.open("cites.txt")
+        inputStream.bufferedReader().use { reader ->
+            reader.forEachLine { line ->
+                lineList.add(line)
             }
         }
     }
