@@ -66,6 +66,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    // Saves the entire list of quotes to shared preferences.
     private fun saveListToSharedPreferences(lineList: MutableList<String>) {
         val sharedPreference = getSharedPreferences("SAVED_QUOTES", Context.MODE_PRIVATE)
         val editor = sharedPreference.edit()
@@ -73,30 +74,35 @@ class MainActivity : AppCompatActivity() {
         editor.putString("savedQuotes", json)
         editor.apply()
     }
-
+    // Reusable function to update the quote text on the screen.
     private fun changeQuoteText(currentQuote: Int, lineList: MutableList<String>) {
         quoteText.text = lineList[currentQuote];
     }
+    // Exits the app and saves the current quote and the whole list of quotes.
     private fun exitAndSave(currentQuote: Int, lineList: MutableList<String>) {
         saveCurrentIndexToSharedPreferences(currentQuote);
         saveListToSharedPreferences(lineList)
         this.finishAffinity();
     }
+    // Saves the position of the current quote.
     private fun saveCurrentIndexToSharedPreferences(currentQuote: Int) {
         val sharedPreference = getSharedPreferences("SAVED_INDEX",Context.MODE_PRIVATE)
         val editor = sharedPreference.edit()
         editor.putInt("currentQuote",currentQuote)
         editor.apply();
     }
+    // Retrieves the position of the quote from when the user exited the app.
     private fun retrieveIndexFromSharedPreferences(): Int {
         val sharedPreference = getSharedPreferences("SAVED_INDEX", Context.MODE_PRIVATE)
         return sharedPreference.getInt("currentQuote", 0)
     }
+    // Checks if the quotes have been saved or not.
     private fun checkIfQuotesAreSaved(): Boolean {
         val sharedPreference = getSharedPreferences("SAVED_QUOTES", Context.MODE_PRIVATE)
         val json = sharedPreference.getString("savedQuotes", null)
         return json != null
     }
+    // Retrieves the saved quotes from shared preferences.
     private fun retrieveQuotesFromSharedPreferences(): MutableList<String> {
         val sharedPreference = getSharedPreferences("SAVED_QUOTES", Context.MODE_PRIVATE)
         // Working with json instead since it was easier to sort the list this way.
@@ -108,6 +114,7 @@ class MainActivity : AppCompatActivity() {
             mutableListOf()
         }
     }
+    // Deals with the cites.txt and segments the data into individual lines.
     private fun segmentInputStream(lineList: MutableList<String>) {
         val quotes = retrieveQuotesFromSharedPreferences()
         if (quotes.isNotEmpty()) {
