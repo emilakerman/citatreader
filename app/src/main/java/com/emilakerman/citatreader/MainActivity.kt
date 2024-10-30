@@ -30,9 +30,16 @@ class MainActivity : AppCompatActivity() {
         if (currentQuote == 0) {
             prevButton.isEnabled = false;
         }
-        // TODO: Delete from local storage instead maybe
         deleteButton.setOnClickListener {
-            lineList.removeAt(currentQuote);
+            // Only removes the quote from sharedPrefs if the list has been saved.
+            if (checkIfQuotesAreSaved()) {
+                val savedQuotes = retrieveQuotesFromSharedPreferences()
+                savedQuotes.removeAt(currentQuote);
+                saveListToSharedPreferences(savedQuotes);
+                lineList.removeAt(currentQuote);
+            } else {
+                lineList.removeAt(currentQuote);
+            }
             changeQuoteText(currentQuote, lineList);
         }
         exitButton.setOnClickListener { exitAndSave(currentQuote, lineList) }
@@ -85,8 +92,14 @@ class MainActivity : AppCompatActivity() {
         val sharedPreference = getSharedPreferences("SAVED_INDEX", Context.MODE_PRIVATE)
         return sharedPreference.getInt("currentQuote", 0)
     }
+    private fun checkIfQuotesAreSaved(): Boolean {
+        val sharedPreference = getSharedPreferences("SAVED_QUOTES", Context.MODE_PRIVATE)
+        val json = sharedPreference.getString("savedQuotes", null)
+        return json != null
+    }
     private fun retrieveQuotesFromSharedPreferences(): MutableList<String> {
         val sharedPreference = getSharedPreferences("SAVED_QUOTES", Context.MODE_PRIVATE)
+        // Working with json instead since it was easier to sort the list this way.
         val json = sharedPreference.getString("savedQuotes", null)
         return if (json != null) {
             val type = object : TypeToken<MutableList<String>>() {}.type
